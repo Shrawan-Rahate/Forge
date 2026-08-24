@@ -1,13 +1,12 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import { getHealth, getDbHealth } from '../controllers/health.controller.js';
 
 const healthRouter = Router();
 
-healthRouter.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'forge-api',
-  });
-});
+// GET /api/v1/health - Basic server health check
+healthRouter.get('/health', getHealth);
+
+// GET /api/v1/health/db - Database connectivity health check
+healthRouter.get('/health/db', getDbHealth);
 
 export default healthRouter;
