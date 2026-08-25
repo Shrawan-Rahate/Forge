@@ -182,3 +182,53 @@ export const completeTask = async (userId: string, taskId: string, isCompleted: 
 
   return updatedTask;
 };
+
+/**
+ * Dynamically calculates totalPoints, completedPoints, and progress percentage for a milestone
+ */
+export const getMilestoneProgress = async (userId: string, milestoneId: string) => {
+  // 1. Verify milestone ownership through the relation chain (Milestone -> Mission -> User)
+  const milestone = await prisma.milestone.findFirst({
+    where: {
+      id: milestoneId,
+      mission: {
+        userId,
+      },
+    },
+    select: {
+      id: true,
+      tasks: {
+        select: {
+          points: true,
+          isCompleted: true,
+        },
+      },
+    },
+  });
+
+  if (!milestone) {
+    throw new MilestoneNotFoundError(`Milestone with ID '${milestoneId}' was not found.`);
+  }
+
+  // 2. Compute totalPoints and completedPoints
+  let totalPoints = 0;
+  let completedPoints = 0;
+
+  for (const task of milestone.tasks) {
+    totalPoints += task.points;
+    if (task.isCompleted) {
+      completedPoints += task.points;
+    }
+  }
+
+  // 3. Compute progress percentage (0 if totalPoints is 0, otherwise rounded to 2 decimal places)
+  const rawProgress = totalPoints > 0 ? (completedPoints / totalPoints) * 100 : 0;
+  const progress = Number(rawProgress.toFixed(2));
+
+  return {
+    milestoneId: milestone.id,
+    totalPoints,
+    completedPoints,
+    progress,
+  };
+};

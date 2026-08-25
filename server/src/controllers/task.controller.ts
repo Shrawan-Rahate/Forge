@@ -273,3 +273,43 @@ export const uncompleteTask = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+/**
+ * Handles GET /api/v1/milestones/:milestoneId/progress
+ */
+export const getMilestoneProgress = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ status: 'fail', message: 'Authentication required.' });
+      return;
+    }
+
+    const { milestoneId } = req.params;
+    if (!milestoneId || typeof milestoneId !== 'string') {
+      res.status(400).json({ status: 'fail', message: 'milestoneId parameter is required.' });
+      return;
+    }
+
+    const progressData = await taskService.getMilestoneProgress(userId, milestoneId);
+
+    res.status(200).json({
+      status: 'success',
+      data: progressData,
+    });
+  } catch (error: unknown) {
+    if (error instanceof MilestoneNotFoundError) {
+      res.status(404).json({
+        status: 'fail',
+        message: error.message,
+      });
+      return;
+    }
+
+    console.error('[Task Controller] Error calculating milestone progress:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'An unexpected error occurred while calculating milestone progress.',
+    });
+  }
+};

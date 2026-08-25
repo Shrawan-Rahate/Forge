@@ -9,6 +9,13 @@ export class UserNotFoundError extends Error {
   }
 }
 
+export class MissionNotFoundError extends Error {
+  constructor(message: string = 'Mission not found.') {
+    super(message);
+    this.name = 'MissionNotFoundError';
+  }
+}
+
 /**
  * Creates a new mission with exactly 6 milestones inside an atomic Prisma transaction.
  * - Authenticated userId is passed in from req.user.userId
@@ -59,4 +66,64 @@ export const createMission = async (userId: string, input: CreateMissionInput) =
 
     return newMission;
   });
+};
+
+/**
+  * Calculates dynamic time-enemy progress and milestone boundaries for a mission
+  */
+export const getMissionProgress = async (userId: string, missionId: string) => {
+  // 1. Verify mission ownership
+  const mission = await prisma.mission.findFirst({
+    where: {
+      id: missionId,
+      userId,
+    },
+    include: {
+      milestones: {
+        orderBy: {
+          order: 'asc',
+        },
+      },
+    },
+  });
+
+  if (!mission) {
+    throw new MissionNotFoundError(`Mission with ID '${missionId}' was not found.`);
+  }
+
+  // 2. Calculate time bounds and progress
+  const now = new Date();
+  const currentTime = now.toISOString();
+  const currentMs = now.getTime();
+  const startMs = mission.startDate.getTime();
+  const endMs = mission.endDate.getTime();
+  const totalMissionDuration = endMs - startMs;
+
+  let rawEnemyProgress = 0;
+  if (totalMissionDuration > 0) {
+    rawEnemyProgress = ((currentMs - startMs) / totalMissionDuration) * 100;
+  }
+  const clampedProgress = Math.max(0, Math.min(100, rawEnemyProgress));
+  const enemyProgress = Number(clampedProgress.toFixed(2));
+
+  // 3. Calculate equal 1/6 mission milestone boundaries
+  const milestoneBoundaries = mission.milestones.map((milestone) => {
+    const sliceMs = totalMissionDuration > 0 ? (milestone.order / 6) * totalMissionDuration : 0;
+    const milestoneBoundaryMs = startMs + sliceMs;
+    const boundaryTime = new Date(milestoneBoundaryMs).toISOString();
+    const enemyHasReachedBoundary = currentMs >= milestoneBoundaryMs;
+
+    return {
+      order: milestone.order,
+      boundaryTime,
+      enemyHasReachedBoundary,
+    };
+  });
+
+  return {
+    missionId: mission.id,
+    enemyProgress,
+    currentTime,
+    milestones: milestoneBoundaries,
+  };
 };
