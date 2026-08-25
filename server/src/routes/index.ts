@@ -3,6 +3,7 @@ import healthRouter from './health.routes.js';
 import missionRouter from './mission.routes.js';
 import authRouter from './auth.routes.js';
 import taskRouter from './task.routes.js';
+import reclaimRouter from './reclaim.routes.js';
 
 const apiRouter = Router();
 
@@ -11,5 +12,6 @@ apiRouter.use('/', healthRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/missions', missionRouter);
 apiRouter.use('/', taskRouter);
+apiRouter.use('/', reclaimRouter);
 
 export default apiRouter;
