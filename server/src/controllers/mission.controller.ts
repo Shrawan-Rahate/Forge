@@ -102,3 +102,49 @@ export const getMissionProgress = async (req: Request, res: Response): Promise<v
     });
   }
 };
+
+/**
+ * Controller to handle GET /api/v1/missions/:missionId/state
+ */
+export const getMissionState = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({
+        status: 'fail',
+        message: 'Authentication required. User not identified.',
+      });
+      return;
+    }
+
+    const { missionId } = req.params;
+    if (!missionId || typeof missionId !== 'string') {
+      res.status(400).json({
+        status: 'fail',
+        message: 'missionId parameter is required.',
+      });
+      return;
+    }
+
+    const stateData = await missionService.evaluateAndGetMissionState(userId, missionId);
+
+    res.status(200).json({
+      status: 'success',
+      data: stateData,
+    });
+  } catch (error: unknown) {
+    if (error instanceof MissionNotFoundError) {
+      res.status(404).json({
+        status: 'fail',
+        message: error.message,
+      });
+      return;
+    }
+
+    console.error('[Mission Controller] Error evaluating mission state:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'An unexpected error occurred while evaluating mission state.',
+    });
+  }
+};

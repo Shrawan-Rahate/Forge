@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createMission, getMissionProgress } from '../controllers/mission.controller.js';
+import { createMission, getMissionProgress, getMissionState } from '../controllers/mission.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const missionRouter = Router();
@@ -9,5 +9,8 @@ missionRouter.post('/', authenticate, createMission);
 
 // GET /api/v1/missions/:missionId/progress - Get time-enemy progress for a mission
 missionRouter.get('/:missionId/progress', authenticate, getMissionProgress);
+
+// GET /api/v1/missions/:missionId/state - Evaluate and get mission milestone states
+missionRouter.get('/:missionId/state', authenticate, getMissionState);
 
 export default missionRouter;

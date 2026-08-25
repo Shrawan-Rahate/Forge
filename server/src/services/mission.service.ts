@@ -127,3 +127,137 @@ export const getMissionProgress = async (userId: string, missionId: string) => {
     milestones: milestoneBoundaries,
   };
 };
+
+/**
+ * Evaluates state transitions (COMPLETED, LOST, LOCKED, ACTIVE) for a mission's milestones idempotently
+ * and returns the current mission state overview.
+ */
+export const evaluateAndGetMissionState = async (userId: string, missionId: string) => {
+  // 1. Fetch mission with milestones and task data
+  const mission = await prisma.mission.findFirst({
+    where: {
+      id: missionId,
+      userId,
+    },
+    include: {
+      milestones: {
+        orderBy: {
+          order: 'asc',
+        },
+        include: {
+          tasks: {
+            select: {
+              points: true,
+              isCompleted: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!mission) {
+    throw new MissionNotFoundError(`Mission with ID '${missionId}' was not found.`);
+  }
+
+  // 2. Time calculations
+  const now = new Date();
+  const currentTime = now.toISOString();
+  const currentMs = now.getTime();
+  const startMs = mission.startDate.getTime();
+  const endMs = mission.endDate.getTime();
+  const totalMissionDuration = endMs - startMs;
+
+  let rawEnemyProgress = 0;
+  if (totalMissionDuration > 0) {
+    rawEnemyProgress = ((currentMs - startMs) / totalMissionDuration) * 100;
+  }
+  const enemyProgress = Number(Math.max(0, Math.min(100, rawEnemyProgress)).toFixed(2));
+
+  // 3. Evaluate milestone states sequentially
+  const milestoneResults = [];
+
+  for (let i = 0; i < mission.milestones.length; i++) {
+    const milestone = mission.milestones[i];
+
+    // Compute task progress
+    let totalPoints = 0;
+    let completedPoints = 0;
+    for (const task of milestone.tasks) {
+      totalPoints += task.points;
+      if (task.isCompleted) {
+        completedPoints += task.points;
+      }
+    }
+    const rawUserProgress = totalPoints > 0 ? (completedPoints / totalPoints) * 100 : 0;
+    const userProgress = Number(rawUserProgress.toFixed(2));
+
+    // Compute boundary time
+    const sliceMs = totalMissionDuration > 0 ? (milestone.order / 6) * totalMissionDuration : 0;
+    const milestoneBoundaryMs = startMs + sliceMs;
+    const boundaryTime = new Date(milestoneBoundaryMs).toISOString();
+    const enemyHasReachedBoundary = currentMs >= milestoneBoundaryMs;
+
+    let currentState = milestone.state;
+    let currentCompletedAt = milestone.completedAt;
+
+    // State Evaluation Logic for ACTIVE milestones:
+    if (currentState === MilestoneState.ACTIVE) {
+      if (userProgress >= 100 && totalPoints > 0) {
+        // Milestone COMPLETED
+        currentState = MilestoneState.COMPLETED;
+        currentCompletedAt = now;
+
+        await prisma.milestone.update({
+          where: { id: milestone.id },
+          data: {
+            state: MilestoneState.COMPLETED,
+            completedAt: now,
+          },
+        });
+
+        // Unlock next milestone if locked
+        if (i + 1 < mission.milestones.length) {
+          const nextMilestone = mission.milestones[i + 1];
+          if (nextMilestone.state === MilestoneState.LOCKED) {
+            nextMilestone.state = MilestoneState.ACTIVE;
+            await prisma.milestone.update({
+              where: { id: nextMilestone.id },
+              data: { state: MilestoneState.ACTIVE },
+            });
+          }
+        }
+      } else if (enemyHasReachedBoundary && userProgress < 100) {
+        // Milestone LOST (time boundary reached and user task progress < 100%)
+        currentState = MilestoneState.LOST;
+
+        await prisma.milestone.update({
+          where: { id: milestone.id },
+          data: {
+            state: MilestoneState.LOST,
+          },
+        });
+        // Next milestone remains LOCKED. No automatic activation.
+      }
+    }
+
+    milestoneResults.push({
+      id: milestone.id,
+      order: milestone.order,
+      title: milestone.title,
+      state: currentState,
+      completedAt: currentCompletedAt,
+      userProgress,
+      boundaryTime,
+      enemyHasReachedBoundary,
+    });
+  }
+
+  return {
+    missionId: mission.id,
+    status: mission.status,
+    enemyProgress,
+    currentTime,
+    milestones: milestoneResults,
+  };
+};
