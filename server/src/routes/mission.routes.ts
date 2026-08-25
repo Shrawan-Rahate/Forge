@@ -1,8 +1,11 @@
 import { Router } from 'express';
-import { createMission, getMissionProgress, getMissionState } from '../controllers/mission.controller.js';
+import { createMission, getMissions, getMissionProgress, getMissionState } from '../controllers/mission.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 const missionRouter = Router();
+
+// GET /api/v1/missions - Get all missions for the authenticated user
+missionRouter.get('/', authenticate, getMissions);
 
 // POST /api/v1/missions - Create a new Mission for the authenticated user
 missionRouter.post('/', authenticate, createMission);

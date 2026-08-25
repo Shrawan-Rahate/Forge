@@ -148,3 +148,35 @@ export const getMissionState = async (req: Request, res: Response): Promise<void
     });
   }
 };
+
+/**
+ * Controller to handle GET /api/v1/missions
+ * Protected route: returns all missions owned by req.user.userId
+ */
+export const getMissions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({
+        status: 'fail',
+        message: 'Authentication required. User not identified.',
+      });
+      return;
+    }
+
+    const missions = await missionService.getUserMissions(userId);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        missions,
+      },
+    });
+  } catch (error: unknown) {
+    console.error('[Mission Controller] Error fetching user missions:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'An unexpected error occurred while fetching missions.',
+    });
+  }
+};

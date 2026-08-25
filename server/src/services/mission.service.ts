@@ -261,3 +261,37 @@ export const evaluateAndGetMissionState = async (userId: string, missionId: stri
     milestones: milestoneResults,
   };
 };
+
+/**
+ * Retrieves all missions owned by the authenticated user, ordered by createdAt descending,
+ * including each mission's 6 milestones ordered by order ascending.
+ */
+export const getUserMissions = async (userId: string) => {
+  const missions = await prisma.mission.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      milestones: {
+        orderBy: {
+          order: 'asc',
+        },
+        select: {
+          id: true,
+          order: true,
+          title: true,
+          description: true,
+          state: true,
+          completedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  return missions;
+};
