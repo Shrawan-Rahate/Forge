@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Mission, Milestone, MilestoneState } from '../types/api';
 import { getMilestoneProgress, getMissionProgress } from '../services/progress.service';
 import ArtifactTrack from './ArtifactTrack';
@@ -35,35 +35,32 @@ export default function MissionCard({ mission }: Props) {
 
   const currentMilestone = findCurrentMilestone(mission.milestones);
 
-  // Fetch both progress values in parallel
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchProgress() {
-      // Enemy (time) progress
-      try {
-        const ep = await getMissionProgress(mission.id);
-        if (!cancelled) setEnemyProgress(ep.enemyProgress);
-      } catch {
-        if (!cancelled) setEnemyProgress(0);
-      }
-
-      // User milestone progress (for the current/active milestone)
-      if (currentMilestone) {
-        try {
-          const mp = await getMilestoneProgress(currentMilestone.id);
-          if (!cancelled) setUserProgress(mp.progressPercent);
-        } catch {
-          if (!cancelled) setUserProgress(0);
-        }
-      } else {
-        setUserProgress(0);
-      }
+  // Fetch both progress values — also callable as a refresh callback
+  const refreshProgress = useCallback(async () => {
+    // Enemy (time) progress
+    try {
+      const ep = await getMissionProgress(mission.id);
+      setEnemyProgress(ep.enemyProgress);
+    } catch {
+      setEnemyProgress(0);
     }
 
-    fetchProgress();
-    return () => { cancelled = true; };
-  }, [mission.id, currentMilestone?.id]);
+    // User milestone progress
+    if (currentMilestone) {
+      try {
+        const mp = await getMilestoneProgress(currentMilestone.id);
+        setUserProgress(mp.progressPercent);
+      } catch {
+        setUserProgress(0);
+      }
+    } else {
+      setUserProgress(0);
+    }
+  }, [mission.id, currentMilestone?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    refreshProgress();
+  }, [refreshProgress]);
 
   const startDate = new Date(mission.startDate).toLocaleDateString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric',
@@ -137,6 +134,7 @@ export default function MissionCard({ mission }: Props) {
           <CurrentMilestone
             milestone={currentMilestone}
             userProgressPercent={userProgress}
+            onProgressRefresh={refreshProgress}
           />
         </div>
       )}

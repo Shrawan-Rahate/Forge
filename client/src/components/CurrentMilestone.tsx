@@ -1,4 +1,5 @@
 import type { Milestone, MilestoneState } from '../types/api';
+import TaskList from './TaskList';
 
 const STATE_CONFIG: Record<MilestoneState, { label: string; accent: string; bg: string; border: string }> = {
   LOCKED:     { label: 'Locked',     accent: 'text-slate-500',  bg: 'bg-slate-900',       border: 'border-slate-800' },
@@ -12,14 +13,17 @@ const STATE_CONFIG: Record<MilestoneState, { label: string; accent: string; bg: 
 interface Props {
   milestone: Milestone;
   userProgressPercent: number | null; // null = loading
+  /** Called by TaskList after a completion toggle so MissionCard refreshes progress bars */
+  onProgressRefresh: () => void;
 }
 
-export default function CurrentMilestone({ milestone, userProgressPercent }: Props) {
+export default function CurrentMilestone({ milestone, userProgressPercent, onProgressRefresh }: Props) {
   const cfg = STATE_CONFIG[milestone.state];
   const loading = userProgressPercent === null;
 
   return (
     <div className={`rounded-xl border p-5 ${cfg.bg} ${cfg.border}`}>
+      {/* Header row */}
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest text-slate-500">
@@ -37,7 +41,7 @@ export default function CurrentMilestone({ milestone, userProgressPercent }: Pro
         </span>
       </div>
 
-      {/* Progress within this milestone */}
+      {/* Milestone progress bar */}
       <div className="mt-4">
         <div className="mb-1.5 flex items-center justify-between">
           <span className="text-xs font-medium text-slate-500">Milestone Progress</span>
@@ -54,6 +58,14 @@ export default function CurrentMilestone({ milestone, userProgressPercent }: Pro
           )}
         </div>
       </div>
+
+      {/* Task list — only for interactive states */}
+      {(milestone.state === 'ACTIVE' || milestone.state === 'RECLAIMING') && (
+        <TaskList
+          milestoneId={milestone.id}
+          onProgressRefresh={onProgressRefresh}
+        />
+      )}
     </div>
   );
 }

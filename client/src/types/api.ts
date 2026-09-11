@@ -12,6 +12,18 @@ export interface Milestone {
   completedAt: string | null;
 }
 
+export interface Task {
+  id: string;
+  milestoneId: string;
+  title: string;
+  description: string | null;
+  points: number;
+  isCompleted: boolean;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Mission {
   id: string;
   title: string;
