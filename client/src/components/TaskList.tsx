@@ -119,12 +119,12 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
     .reduce((sum, t) => sum + t.points, 0);
 
   if (loading) {
-    return <p className="mt-4 text-xs text-slate-500">Loading tasks…</p>;
+    return <p className="mt-4 text-xs font-mono text-forge-void-400">Loading tasks…</p>;
   }
 
   if (error) {
     return (
-      <p role="alert" className="mt-4 text-xs text-red-400">
+      <p role="alert" className="mt-4 text-xs font-medium text-forge-ash">
         {error}
       </p>
     );
@@ -133,19 +133,21 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
   return (
     <div className="mt-4">
       {/* Point summary */}
-      <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
-        <span className="font-semibold uppercase tracking-widest">Tasks</span>
-        <span className="tabular-nums">
-          <span className="text-slate-300">{completedPoints}</span>
+      <div className="mb-3 flex items-center justify-between text-xs text-forge-void-400">
+        <span className="font-bold uppercase tracking-widest text-forge-void-400">
+          Tasks
+        </span>
+        <span className="font-mono tabular-nums">
+          <span className="font-bold text-forge-ember">{completedPoints}</span>
           {' / '}
-          {totalPoints} pts
+          <span className="text-forge-void-300">{totalPoints}</span> pts
         </span>
       </div>
 
       {/* Task rows */}
       {tasks.length === 0 && !showForm && (
-        <p className="text-xs text-slate-600">
-          No tasks yet for this milestone.
+        <p className="text-xs text-forge-void-500 py-1">
+          No tasks yet for this milestone. Add one below.
         </p>
       )}
 
@@ -156,10 +158,10 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
             return (
               <li
                 key={task.id}
-                className={`flex items-start gap-3 rounded-lg border px-3 py-2.5 ${
+                className={`flex items-start gap-3 rounded-lg border px-3.5 py-2.5 transition-all duration-200 ease-out ${
                   task.isCompleted
-                    ? 'border-emerald-900/60 bg-emerald-950/20'
-                    : 'border-slate-800 bg-slate-900/60'
+                    ? 'border-forge-triumph/25 bg-forge-triumph/[0.04] opacity-80'
+                    : 'border-forge-void-700/80 bg-forge-void-850/80 hover:border-forge-void-600'
                 }`}
               >
                 {/* Checkbox */}
@@ -167,15 +169,15 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
                   onClick={() => handleToggle(task)}
                   disabled={isToggling}
                   aria-label={task.isCompleted ? `Uncomplete ${task.title}` : `Complete ${task.title}`}
-                  className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border ${
+                  className={`mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-all duration-150 hover:scale-105 active:scale-90 ${
                     task.isCompleted
-                      ? 'border-emerald-600 bg-emerald-600 text-white'
-                      : 'border-slate-600 bg-transparent hover:border-amber-500'
+                      ? 'border-forge-triumph bg-forge-triumph text-forge-void-950 shadow-[0_0_8px_rgba(16,185,129,0.35)]'
+                      : 'border-forge-void-500 bg-forge-void-900 hover:border-forge-ember hover:shadow-[0_0_8px_rgba(245,158,11,0.3)]'
                   } disabled:cursor-not-allowed disabled:opacity-50`}
                 >
                   {task.isCompleted && (
-                    <svg viewBox="0 0 10 10" className="h-2.5 w-2.5" fill="currentColor">
-                      <path d="M8.5 2.5 4 7 1.5 4.5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 forge-check-pop" fill="none" stroke="currentColor">
+                      <path d="M8.5 2.5 4 7 1.5 4.5" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
                 </button>
@@ -183,23 +185,23 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
                 {/* Task info */}
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`text-sm font-medium leading-snug ${
-                      task.isCompleted ? 'text-slate-500 line-through' : 'text-slate-200'
+                    className={`text-sm font-medium leading-snug transition-all duration-200 ${
+                      task.isCompleted ? 'text-forge-void-400 line-through' : 'text-forge-void-100'
                     }`}
                   >
                     {task.title}
                   </p>
                   {task.description && (
-                    <p className="mt-0.5 text-xs text-slate-600">{task.description}</p>
+                    <p className="mt-0.5 text-xs text-forge-void-400">{task.description}</p>
                   )}
                 </div>
 
                 {/* Points badge */}
                 <span
-                  className={`flex-shrink-0 rounded px-1.5 py-0.5 text-xs font-bold tabular-nums ${
+                  className={`flex-shrink-0 rounded px-2 py-0.5 text-xs font-mono font-bold tabular-nums border transition-colors duration-150 ${
                     task.isCompleted
-                      ? 'bg-emerald-900/40 text-emerald-500'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-forge-triumph/15 border-forge-triumph/30 text-forge-triumph'
+                      : 'bg-forge-void-800 border-forge-void-700 text-forge-void-300'
                   }`}
                 >
                   {task.points}pt
@@ -214,48 +216,65 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
       {!showForm ? (
         <button
           onClick={() => setShowForm(true)}
-          className="mt-3 w-full rounded-lg border border-dashed border-slate-700 py-2 text-xs font-medium text-slate-500 hover:border-amber-700 hover:text-amber-400"
+          className="mt-3 w-full rounded-lg border border-dashed border-forge-void-700/80 py-2.5 text-xs font-semibold text-forge-void-400 hover:border-forge-ember/60 hover:text-forge-ember hover:bg-forge-ember/[0.04] active:scale-[0.99] transition-all flex items-center justify-center gap-1.5"
         >
-          + Add Task
+          <span>+</span> Add Task
         </button>
       ) : (
         <form
           onSubmit={handleCreateTask}
-          className="mt-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3"
+          className="mt-3 rounded-xl border border-forge-void-700 bg-forge-void-900/90 p-4 shadow-lg space-y-3"
         >
           {/* Title */}
-          <input
-            type="text"
-            placeholder="Task title"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            disabled={creating}
-            className="w-full rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-600 focus:outline-none disabled:opacity-50"
-          />
+          <div>
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-forge-void-400">
+              Task Title
+            </label>
+            <input
+              type="text"
+              placeholder="What needs to be forged?"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              disabled={creating}
+              className="w-full rounded-lg border border-forge-void-700 bg-forge-void-800 px-3.5 py-2 text-sm text-forge-void-100 placeholder-forge-void-500 outline-none focus:border-forge-ember focus:ring-1 focus:ring-forge-ember/40 focus:bg-forge-void-850 transition-colors disabled:opacity-50"
+            />
+          </div>
 
           {/* Description */}
-          <input
-            type="text"
-            placeholder="Description (optional)"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            disabled={creating}
-            className="mt-2 w-full rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-600 focus:outline-none disabled:opacity-50"
-          />
-
-          {/* Points + buttons row */}
-          <div className="mt-2 flex items-center gap-2">
+          <div>
+            <label className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-forge-void-400">
+              Description <span className="text-forge-void-500 font-normal lowercase">(optional)</span>
+            </label>
             <input
-              type="number"
-              min="1"
-              step="1"
-              placeholder="Pts"
-              value={newPoints}
-              onChange={(e) => setNewPoints(e.target.value)}
+              type="text"
+              placeholder="Add tactical details..."
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
               disabled={creating}
-              className="w-20 rounded border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 placeholder-slate-500 focus:border-amber-600 focus:outline-none disabled:opacity-50"
+              className="w-full rounded-lg border border-forge-void-700 bg-forge-void-800 px-3.5 py-2 text-sm text-forge-void-100 placeholder-forge-void-500 outline-none focus:border-forge-ember focus:ring-1 focus:ring-forge-ember/40 focus:bg-forge-void-850 transition-colors disabled:opacity-50"
             />
+          </div>
+
+          {/* Points + action buttons */}
+          <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-forge-void-400">
+                Points:
+              </label>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Pts"
+                value={newPoints}
+                onChange={(e) => setNewPoints(e.target.value)}
+                disabled={creating}
+                className="w-16 rounded-lg border border-forge-void-700 bg-forge-void-800 px-2.5 py-1.5 text-sm font-mono text-forge-void-100 outline-none focus:border-forge-ember focus:ring-1 focus:ring-forge-ember/40 focus:bg-forge-void-850 transition-colors disabled:opacity-50"
+              />
+            </div>
+
             <div className="flex-1" />
+
             <button
               type="button"
               onClick={() => {
@@ -266,22 +285,22 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
                 setNewPoints('1');
               }}
               disabled={creating}
-              className="rounded px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-300 disabled:opacity-50"
+              className="rounded-lg px-3.5 py-1.5 text-xs font-semibold text-forge-void-400 hover:text-forge-void-200 active:scale-95 transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={creating}
-              className="rounded bg-amber-600 px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg bg-forge-ember px-4 py-1.5 text-xs font-bold text-forge-void-950 hover:bg-forge-ember-flare active:scale-95 shadow-[0_0_12px_rgba(245,158,11,0.35)] transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {creating ? 'Adding…' : 'Add'}
+              {creating ? 'Adding…' : 'Add Task'}
             </button>
           </div>
 
           {/* Form error */}
           {formError && (
-            <p role="alert" className="mt-2 text-xs text-red-400">
+            <p role="alert" className="text-xs font-medium text-forge-ash pt-1">
               {formError}
             </p>
           )}
@@ -290,4 +309,3 @@ export default function TaskList({ milestoneId, onProgressRefresh }: Props) {
     </div>
   );
 }
-

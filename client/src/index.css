@@ -2,6 +2,430 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   FORGE DESIGN FOUNDATION & INTERACTION SYSTEM (PHASE 1 + 2 + 3)
+   ========================================================================== */
+
 :root {
   color-scheme: dark;
+
+  /* -------------------------------------------------------------------------
+     1. Color Tokens
+     ------------------------------------------------------------------------- */
+  /* Void Base (Cold dark atmosphere) */
+  --forge-void-950: #090b10;
+  --forge-void-900: #12151f;
+  --forge-void-850: #171b26;
+  --forge-void-800: #1c212e;
+  --forge-void-700: #2a3142;
+  --forge-void-600: #3c455c;
+  --forge-void-500: #4d576a;
+  --forge-void-400: #727e96;
+  --forge-void-300: #9ba3b4;
+  --forge-void-200: #bdc3cf;
+  --forge-void-100: #dce0e8;
+  --forge-void-50: #f1f3f7;
+
+  /* Ember Accent (User / Creation / Molten Will) */
+  --forge-ember: #f59e0b;
+  --forge-ember-smolder: #d9531e;
+  --forge-ember-flare: #fbbf24;
+  --forge-ember-deep: #9a3412;
+  --forge-ember-glow: rgba(245, 158, 11, 0.18);
+
+  /* Ash / Threat Accent (Enemy / Entropy / Loss) */
+  --forge-ash: #dc2626;
+  --forge-ash-threat: #ef4444;
+  --forge-ash-dark: #7f1d1d;
+  --forge-ash-deep: #450a0a;
+  --forge-ash-glow: rgba(220, 38, 38, 0.18);
+
+  /* Steel (Locked / Inactive / Dormant) */
+  --forge-steel: #64748b;
+  --forge-steel-dim: #475569;
+  --forge-steel-dark: #334155;
+
+  /* Triumph (Completed / Success) */
+  --forge-triumph: #10b981;
+  --forge-triumph-bright: #34d399;
+  --forge-triumph-deep: #064e3b;
+  --forge-triumph-glow: rgba(16, 185, 129, 0.18);
+
+  /* Reclaim (Restoration / Recovery) */
+  --forge-reclaim: #06b6d4;
+  --forge-reclaim-bright: #22d3ee;
+  --forge-reclaim-pulse: #f97316;
+  --forge-reclaim-glow: rgba(6, 182, 212, 0.18);
+
+  /* -------------------------------------------------------------------------
+     2. Typography Tokens
+     ------------------------------------------------------------------------- */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* -------------------------------------------------------------------------
+     3. Spacing, Radius, Borders, and Shadow Tokens
+     ------------------------------------------------------------------------- */
+  --forge-space-xs: 4px;
+  --forge-space-sm: 8px;
+  --forge-space-md: 16px;
+  --forge-space-lg: 24px;
+  --forge-space-xl: 32px;
+  --forge-space-2xl: 48px;
+
+  --forge-radius-xs: 4px;
+  --forge-radius-sm: 6px;
+  --forge-radius: 10px;
+  --forge-radius-md: 12px;
+  --forge-radius-lg: 16px;
+  --forge-radius-xl: 20px;
+  --forge-radius-full: 9999px;
+
+  --forge-shadow-card: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  --forge-shadow-surface: inset 0 1px 0 0 rgba(114, 126, 150, 0.25), 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  --forge-glow-ember: 0 0 18px -2px rgba(245, 158, 11, 0.35);
+  --forge-glow-ember-lg: 0 0 32px -4px rgba(245, 158, 11, 0.5);
+  --forge-glow-ash: 0 0 16px -2px rgba(220, 38, 38, 0.35);
+  --forge-glow-triumph: 0 0 16px -2px rgba(16, 185, 129, 0.35);
+  --forge-glow-reclaim: 0 0 16px -2px rgba(6, 182, 212, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   4. Base App Background and Surface Styling
+   --------------------------------------------------------------------------- */
+body {
+  background-color: var(--forge-void-950);
+  background-image: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(28, 33, 46, 0.6) 0%, rgba(9, 11, 16, 0.98) 80%);
+  background-attachment: fixed;
+  color: var(--forge-void-100);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Data displays & monospace numbers */
+.forge-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+}
+
+/* Surface Primitives */
+.forge-surface-card {
+  background-color: var(--forge-void-900);
+  border: 1px solid var(--forge-void-700);
+  box-shadow: var(--forge-shadow-surface);
+  border-radius: var(--forge-radius-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forge-surface-inset {
+  background-color: var(--forge-void-800);
+  border: 1px solid var(--forge-void-700);
+  border-radius: var(--forge-radius-sm);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.forge-surface-elevated {
+  background-color: var(--forge-void-800);
+  border: 1px solid var(--forge-void-600);
+  box-shadow: var(--forge-shadow-card);
+  border-radius: var(--forge-radius-md);
+}
+
+/* ---------------------------------------------------------------------------
+   5. User Progress: Molten / Ember Visual Language
+   --------------------------------------------------------------------------- */
+.forge-progress-track {
+  height: 10px;
+  background-color: rgba(9, 11, 16, 0.85);
+  border: 1px solid rgba(42, 49, 66, 0.7);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  border-radius: var(--forge-radius-full);
+  position: relative;
+  overflow: hidden;
+}
+
+.forge-progress-user {
+  height: 100%;
+  border-radius: var(--forge-radius-full);
+  background: linear-gradient(90deg, #9a3412 0%, #d9531e 30%, #f59e0b 70%, #fbbf24 100%);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(254, 240, 138, 0.6);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.forge-progress-user::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: forge-molten 3.5s infinite linear;
+}
+
+/* ---------------------------------------------------------------------------
+   6. Enemy Progress: Thinner Dark / Threat Visual Language
+   --------------------------------------------------------------------------- */
+.forge-threat-track {
+  height: 6px;
+  background-color: rgba(9, 11, 16, 0.95);
+  border: 1px solid rgba(42, 49, 66, 0.5);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+  border-radius: var(--forge-radius-full);
+  position: relative;
+  overflow: hidden;
+}
+
+.forge-progress-enemy {
+  height: 100%;
+  border-radius: var(--forge-radius-full);
+  background: linear-gradient(90deg, #475569 0%, #7f1d1d 40%, #dc2626 75%, #ef4444 100%);
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.forge-progress-enemy::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 6px #ef4444;
+  border-radius: var(--forge-radius-full);
+  animation: forge-threat-breathe 3.5s infinite ease-in-out;
+}
+
+/* ---------------------------------------------------------------------------
+   7. Artifact Visual Primitives
+   Supports: LOCKED, ACTIVE, COMPLETED, LOST, RECLAIMING, RECLAIMED
+   --------------------------------------------------------------------------- */
+.forge-artifact-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--forge-radius-md);
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.forge-artifact-node:hover {
+  transform: translateY(-1.5px);
+}
+
+/* LOCKED state */
+.forge-artifact-locked {
+  background-color: rgba(18, 21, 31, 0.7);
+  border: 1px dashed var(--forge-steel-dim);
+  color: var(--forge-steel);
+  opacity: 0.55;
+}
+
+.forge-artifact-locked:hover {
+  opacity: 0.75;
+  border-color: var(--forge-steel);
+}
+
+/* ACTIVE state (restrained, dignified pulse) */
+.forge-artifact-active {
+  background-color: var(--forge-void-800);
+  border: 2px solid var(--forge-ember);
+  color: var(--forge-ember);
+  box-shadow: var(--forge-glow-ember);
+  animation: forge-ember-pulse 3s infinite ease-in-out;
+}
+
+.forge-artifact-active:hover {
+  box-shadow: var(--forge-glow-ember-lg);
+}
+
+/* COMPLETED state (triumph with clean check) */
+.forge-artifact-completed {
+  background-color: rgba(16, 185, 129, 0.08);
+  border: 2px solid var(--forge-triumph);
+  color: var(--forge-triumph);
+  box-shadow: var(--forge-glow-triumph);
+}
+
+.forge-artifact-completed:hover {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+}
+
+/* LOST state (subtle corrupted crack texture) */
+.forge-artifact-lost {
+  background-color: rgba(220, 38, 38, 0.08);
+  border: 2px dashed var(--forge-ash);
+  color: var(--forge-ash);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 5px,
+    rgba(220, 38, 38, 0.14) 5px,
+    rgba(220, 38, 38, 0.14) 9px
+  );
+  box-shadow: inset 0 0 10px rgba(220, 38, 38, 0.15), var(--forge-glow-ash);
+}
+
+.forge-artifact-lost:hover {
+  border-color: var(--forge-ash-threat);
+  box-shadow: inset 0 0 12px rgba(220, 38, 38, 0.25), 0 0 16px rgba(220, 38, 38, 0.4);
+}
+
+/* RECLAIMING state (controlled amber/cyan recovery cycle) */
+.forge-artifact-reclaiming {
+  background-color: rgba(249, 115, 22, 0.1);
+  border: 2px solid var(--forge-reclaim-pulse);
+  color: var(--forge-reclaim-pulse);
+  animation: forge-reclaim-pulse 2.8s infinite ease-in-out;
+}
+
+/* RECLAIMED state (restored crystal/teal with sheen) */
+.forge-artifact-reclaimed {
+  background-color: rgba(6, 182, 212, 0.08);
+  border: 2px solid var(--forge-reclaim);
+  color: var(--forge-reclaim-bright);
+  box-shadow: var(--forge-glow-reclaim);
+  overflow: hidden;
+}
+
+.forge-artifact-reclaimed::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 58%
+  );
+  animation: forge-restoration-shine 5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+.forge-artifact-reclaimed:hover {
+  box-shadow: 0 0 22px rgba(6, 182, 212, 0.5);
+}
+
+/* ---------------------------------------------------------------------------
+   8. Micro-Animations & Keyframes
+   --------------------------------------------------------------------------- */
+
+/* Restrained Ember Pulse for Active Artifact */
+@keyframes forge-ember-pulse {
+  0%, 100% {
+    box-shadow: 0 0 14px -2px rgba(245, 158, 11, 0.35);
+    border-color: rgba(245, 158, 11, 0.85);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px rgba(245, 158, 11, 0.6);
+    border-color: rgba(251, 191, 36, 1);
+  }
+}
+
+/* Controlled Reclaiming Cycle (amber flame <-> restored cyan) */
+@keyframes forge-reclaim-pulse {
+  0%, 100% {
+    border-color: #f97316;
+    box-shadow: 0 0 14px rgba(249, 115, 22, 0.3);
+    color: #f97316;
+  }
+  50% {
+    border-color: #06b6d4;
+    box-shadow: 0 0 18px rgba(6, 182, 212, 0.42);
+    color: #22d3ee;
+  }
+}
+
+/* Subtle, Restrained Threat Breathing (never distracting) */
+@keyframes forge-threat-breathe {
+  0%, 100% {
+    opacity: 0.5;
+    box-shadow: 0 0 4px #dc2626;
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 8px #ef4444;
+  }
+}
+
+/* Restoration Sheen Sweep across Reclaimed Node */
+@keyframes forge-restoration-shine {
+  0%, 75% {
+    transform: translateX(-120%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(120%) rotate(0deg);
+  }
+}
+
+/* Task Checkmark Entrance Pop */
+@keyframes forge-check-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.forge-check-pop {
+  animation: forge-check-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Molten shimmer across user progress */
+@keyframes forge-molten {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   9. Accessibility: prefers-reduced-motion
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .forge-progress-user::after,
+  .forge-progress-enemy::after,
+  .forge-artifact-active,
+  .forge-artifact-reclaiming,
+  .forge-artifact-reclaimed::after,
+  .forge-check-pop {
+    animation: none !important;
+  }
+
+  .forge-artifact-node:hover {
+    transform: none !important;
+  }
 }

@@ -1,22 +1,33 @@
 import { apiFetch } from './api';
 import type { ApiSuccess } from '../types/api';
 
-interface MilestoneProgressData {
+// Server returns: { milestoneId, totalPoints, completedPoints, progress }
+interface MilestoneProgressServerData {
+  milestoneId: string;
+  totalPoints: number;
+  completedPoints: number;
+  progress: number;
+}
+
+// Normalised shape used by MissionCard
+export interface MilestoneProgressData {
   milestoneId: string;
   totalTaskPoints: number;
   completedTaskPoints: number;
   progressPercent: number;
 }
 
-interface MilestoneProgressResponse {
-  progress: MilestoneProgressData;
-}
-
 export async function getMilestoneProgress(milestoneId: string): Promise<MilestoneProgressData> {
-  const res = await apiFetch<ApiSuccess<MilestoneProgressResponse>>(
+  const res = await apiFetch<ApiSuccess<MilestoneProgressServerData>>(
     `/milestones/${milestoneId}/progress`
   );
-  return res.data.progress;
+  const d = res.data;
+  return {
+    milestoneId: d.milestoneId,
+    totalTaskPoints: d.totalPoints,
+    completedTaskPoints: d.completedPoints,
+    progressPercent: d.progress,
+  };
 }
 
 interface MissionProgressData {

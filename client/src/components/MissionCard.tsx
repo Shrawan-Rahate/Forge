@@ -20,9 +20,9 @@ function findCurrentMilestone(milestones: Milestone[]): Milestone | null {
 }
 
 const STATUS_BADGE: Record<string, string> = {
-  ACTIVE:    'border-amber-700 bg-amber-950/50 text-amber-400',
-  COMPLETED: 'border-emerald-700 bg-emerald-950/50 text-emerald-400',
-  FAILED:    'border-red-800 bg-red-950/50 text-red-400',
+  ACTIVE:    'border-forge-ember/40 bg-forge-ember/10 text-forge-ember shadow-[0_0_10px_rgba(245,158,11,0.15)]',
+  COMPLETED: 'border-forge-triumph/40 bg-forge-triumph/10 text-forge-triumph shadow-[0_0_10px_rgba(16,185,129,0.15)]',
+  FAILED:    'border-forge-ash/40 bg-forge-ash/10 text-forge-ash shadow-[0_0_10px_rgba(220,38,38,0.15)]',
 };
 
 interface Props {
@@ -70,42 +70,46 @@ export default function MissionCard({ mission }: Props) {
   });
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+    <article className="forge-surface-card overflow-hidden">
 
       {/* ── MISSION HEADER ──────────────────────────────── */}
-      <div className="border-b border-slate-800 bg-slate-900/80 px-6 pt-6 pb-5">
+      <div className="border-b border-forge-void-700/70 bg-gradient-to-b from-forge-void-850/70 to-transparent px-6 pt-6 pb-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="truncate text-xl font-bold tracking-tight text-slate-100">
+            <h2 className="truncate text-xl sm:text-2xl font-extrabold tracking-tight text-forge-void-100">
               {mission.title}
             </h2>
             {mission.description && (
-              <p className="mt-1 text-sm leading-relaxed text-slate-400">
+              <p className="mt-1.5 text-sm leading-relaxed text-forge-void-300">
                 {mission.description}
               </p>
             )}
           </div>
           <span
-            className={`flex-shrink-0 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${STATUS_BADGE[mission.status] ?? STATUS_BADGE['ACTIVE']}`}
+            className={`flex-shrink-0 rounded-full border px-3 py-1 text-xs font-bold tracking-wide ${
+              STATUS_BADGE[mission.status] ?? STATUS_BADGE['ACTIVE']
+            }`}
           >
             {mission.status}
           </span>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
-          <span>
-            <span className="font-semibold text-slate-400">Start</span>
-            &nbsp;·&nbsp;{startDate}
+        {/* Date Timeline */}
+        <div className="mt-3.5 flex flex-wrap items-center gap-4 text-xs font-mono text-forge-void-400">
+          <span className="flex items-center gap-1.5">
+            <span className="font-semibold uppercase tracking-wider text-forge-void-500">Start</span>
+            <span className="text-forge-void-300">{startDate}</span>
           </span>
-          <span>
-            <span className="font-semibold text-slate-400">End</span>
-            &nbsp;·&nbsp;{endDate}
+          <span className="text-forge-void-600">·</span>
+          <span className="flex items-center gap-1.5">
+            <span className="font-semibold uppercase tracking-wider text-forge-void-500">Deadline</span>
+            <span className="text-forge-void-300">{endDate}</span>
           </span>
         </div>
       </div>
 
       {/* ── DUAL PROGRESS ───────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 border-b border-slate-800 bg-slate-950/40 px-6 py-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 border-b border-forge-void-700/70 bg-forge-void-950/60 px-6 py-5 sm:grid-cols-2">
         <ProgressBar
           label="Your Progress"
           percent={userProgress ?? 0}
@@ -113,7 +117,7 @@ export default function MissionCard({ mission }: Props) {
           loading={userProgress === null}
         />
         <ProgressBar
-          label="Enemy Progress"
+          label="Enemy Threat"
           percent={enemyProgress ?? 0}
           variant="enemy"
           loading={enemyProgress === null}
@@ -121,16 +125,16 @@ export default function MissionCard({ mission }: Props) {
       </div>
 
       {/* ── SIX ARTIFACTS ───────────────────────────────── */}
-      <div className="border-b border-slate-800 px-6 py-6">
-        <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-slate-600">
-          Mission Path
+      <div className="border-b border-forge-void-700/70 bg-forge-void-900/40 px-6 py-6">
+        <p className="mb-4 text-xs font-bold uppercase tracking-widest text-forge-void-400">
+          Mission Path · 6 Artifacts
         </p>
         <ArtifactTrack milestones={mission.milestones} />
       </div>
 
       {/* ── CURRENT MILESTONE ───────────────────────────── */}
       {currentMilestone && (
-        <div className="px-6 py-5">
+        <div className="bg-forge-void-900/60 px-6 py-6">
           <CurrentMilestone
             milestone={currentMilestone}
             userProgressPercent={userProgress}
